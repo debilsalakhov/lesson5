@@ -4,7 +4,7 @@ import requests
 class Card:
     emo_SPADES = 'U0002660'
     emo_CLUBS = 'U0002663'
-    emo_HEARTS ='U0002665'
+    emo_HEARTS = 'U0002665'
     emo_DIAMONDS = 'U0002666'
 
     def __init__(self, card):
@@ -83,7 +83,7 @@ class Game21:
             self.card_in_game = []  # карты в игре
             self.arr_cards_URL = []  # URL карт игры
             self.score = 0  # очки игрока
-            self.status = None  # статус игры: True - игрок выйграл, False - игрок проиграл, None - игра продолжается
+            self.status = None  # статус игры: True - игрок выиграл, False - игрок проиграл, None - игра продолжается
 
     def new_pack(self, deck_count):
         response = requests.get(f"https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count={deck_count}")
@@ -97,9 +97,9 @@ class Game21:
         # ---------------------------------------------------------------------
 
     def get_cards(self, card_count=1):
-        if self.pack_card == None:
+        if self.pack_card is None:
             return None
-        if self.status != None:  # игра закончена
+        if self.status is None:  # игра закончена
             return None
 
         deck_id = self.pack_card["deck_id"]
@@ -109,7 +109,7 @@ class Game21:
             return False
 
         new_cards = response.json()
-        if new_cards["success"] != True:
+        if new_cards["success"] is not True:
             return False
         self.remaining = new_cards["remaining"]  # обновим в классе количество оставшихся карт в колоде
 

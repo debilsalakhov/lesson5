@@ -3,7 +3,7 @@ from telebot import types
 
 class Menu:
     hash = {}  # все экземпляры класса
-    cur_menu = None  # текущий экземпляр класса, текущее меню
+    cur_menu = {}  # текущий экземпляр класса, текущее меню
     extendedParameters = {}  # место хранения доп параметров для передачи в inline кнопки
 
     def __init__(self, name, buttons=None, parent=None, action=None):
@@ -20,16 +20,18 @@ class Menu:
     @classmethod
     def getExtPar(cls, id):
         return cls.extendedParameters.pop(id, None)
+
     @classmethod
     def setExtPar(cls, parameter):
         import uuid
         id = uuid.uuid4().hex
         cls.extendedParameters[id] = parameter
         return id
+
     @classmethod
     def getMenu(cls, name):
         menu = cls.hash.get(name)
-        if menu != None:
+        if menu is not None:
             cls.cur_menu = menu
         return menu
 
@@ -39,4 +41,4 @@ m_games = Menu('Игры', buttons=['Камень, ножницы, бумага'
 m_game_21 = Menu('Игра в 21', buttons=['Карту!', 'Стоп!', 'Выход'], parent=m_games, action='game_21')
 m_game_rsp = Menu('Камень, ножницы, бумага',  buttons=['Камень', 'Ножницы', 'Бумага', 'Выход'], parent=m_games,
                   action='game_rsp')
-m_DZ = Menu('Развлечения', buttons=['Прислать собаку', 'Прислать анекдот', 'Прислать фильм', 'Выход'], parent=m_main)
+m_entertainment = Menu('Развлечения', buttons=['Прислать собаку', 'Прислать анекдот', 'Прислать фильм', 'Выход'], parent=m_main)

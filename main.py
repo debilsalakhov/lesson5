@@ -19,11 +19,12 @@ game21 = None  # класс игры в 21, экземпляр создаем т
 
 # -----------------------------------------------------------------------
 # Функция, обрабатывающая команду /start
-@bot.message_handler(commands="start")
+@bot.message_handler(commands=["start"])
 def command(message, res=False):
 
     txt_message = f"Йоу здорова, {message.from_user.first_name}! Я тестовый бот для курса программирования на языке Питон! Пока еще я ничего не умею, но скоро буду."
     bot.send_message(message.chat.id, text=txt_message, reply_markup=Menu.getMenu("Главное меню").markup)
+
 
 # -----------------------------------------------------------------------
 # Получение сообщений от юзера
@@ -34,10 +35,10 @@ def get_text_messages(message):
     chat_id = message.chat.id
     ms_text = message.text
     result = goto_menu(chat_id, ms_text)  # попытаемся использовать текст как команду меню, и войти в него
-    if result == True:
+    if result is True:
         return  # мы вошли в подменю, и дальнейшая обработка не требуется
 
-    if Menu.cur_menu != None and ms_text in Menu.cur_menu.buttons:  # проверим, что команда относится к текущему меню
+    if Menu.cur_menu is not None and ms_text in Menu.cur_menu.buttons:  # проверим, что команда относится к текущему меню
         if ms_text == "Помощь":
             send_help(chat_id)
 
@@ -54,14 +55,14 @@ def get_text_messages(message):
             get_ManOrNot(chat_id)
 
         elif ms_text == "Карту!":
-            if game21 == None:  # если мы случайно попали в это меню, а объекта с игрой нет
+            if game21 is None:  # если мы случайно попали в это меню, а объекта с игрой нет
                 goto_menu(chat_id, "Выход")
                 return
             text_game = game21.get_cards(1)
             bot.send_media_group(chat_id, media=getMediaCards(game21))  # получим и отправим изображения карт
             bot.send_message(chat_id, text=text_game)
 
-            if game21.status != None:  # выход, если игра закончена
+            if game21.status is not None:  # выход, если игра закончена
                 goto_menu(chat_id, "Выход")
                 return
 
@@ -92,25 +93,27 @@ def get_text_messages(message):
         bot.send_message(chat_id, text="Мне жаль, я не понимаю вашу команду: " + ms_text)
         goto_menu(chat_id, "Главное меню")
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    # если требуется передать параметр или несколько параметров в обработчик кнопки, использовать методы Menu.getExtPar() и Menu.setExtPar()
+    # если требуется передать параметр или несколько параметров в обработчика кнопки, использовать методы Menu.getExtPar() и Menu.setExtPar()
     pass
     # if call.data == "ManOrNot_GoToSite": #call.data это callback_data, которую мы указали при объявлении InLine-кнопки
     #
     #     # После обработки каждого запроса нужно вызвать метод answer_callback_query, чтобы Telegram понял, что запрос обработан.
     #     bot.answer_callback_query(call.id)
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 def goto_menu(chat_id, name_menu):
     # получение нужного элемента меню
-    if name_menu == "Выход" and Menu.cur_menu != None and Menu.cur_menu.parent != None:
+    if name_menu == "Выход" and Menu.cur_menu is not None and Menu.cur_menu.parent is not None:
         target_menu = Menu.getMenu(Menu.cur_menu.parent.name)
     else:
         target_menu = Menu.getMenu(name_menu)
 
-    if target_menu != None:
+    if target_menu is not None:
         bot.send_message(chat_id, text=target_menu.name, reply_markup=target_menu.markup)
 
         # Проверим, нет ли обработчика для самого меню. Если есть - выполним нужные команды
@@ -125,6 +128,7 @@ def goto_menu(chat_id, name_menu):
     else:
         return False
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 def getMediaCards(game21):
     medias = []
@@ -132,15 +136,19 @@ def getMediaCards(game21):
         medias.append(types.InputMediaPhoto(url))
     return medias
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 def send_help(chat_id):
     global bot
-    bot.send_message(chat_id, "Автор: Швец Андрей")
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton(text="Напишите автору", url="https://t.me/user59387")
-    markup.add(btn1)
-    img = open('Швец Андрей.png', 'rb')
-    bot.send_photo(chat_id, img, reply_markup=markup)
+    bot.send_message(chat_id, 'Автор: Салахов Шамиль')
+    key1 = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text='Напишите автору', url='https://t.me/debilsalakhov')
+    btn2 = types.InlineKeyboardButton(text='Электронная почта автора', url='bigmoyka@gmail.com')
+    btn3 = types.InlineKeyboardButton(text='Инста автора', url='https://www.instagram.com/debilsalakhov')
+    key1.add(btn1, btn2, btn3)
+    img = open('chad.jpg', 'rb')
+    bot.send_photo(chat_id, img, reply_markup=key1)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 def send_film(chat_id):
@@ -156,6 +164,7 @@ def send_film(chat_id):
     markup.add(btn1, btn2)
     bot.send_photo(chat_id, photo=film['Обложка_url'], caption=info_str, parse_mode='HTML', reply_markup=markup)
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 def get_anekdot():
     array_anekdots = []
@@ -170,6 +179,7 @@ def get_anekdot():
     else:
         return ""
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 def get_dogURL():
     url = ""
@@ -179,6 +189,7 @@ def get_dogURL():
         url = r_json['url']
         # url.split("/")[-1]
     return url
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 def get_ManOrNot(chat_id):
@@ -192,6 +203,7 @@ def get_ManOrNot(chat_id):
     if req.status_code == 200:
         img = BytesIO(req.content)
         bot.send_photo(chat_id, photo=img, reply_markup=markup, caption="Этот человек реален?")
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 def get_randomFilm():
@@ -222,6 +234,8 @@ def get_randomFilm():
     infoFilm["фильм_url"] = url + details[7].contents[0]["href"]
 
     return infoFilm
+
+
 # -----------------------------------------------------------------------
 bot.polling(none_stop=True, interval=0)  # Запускаем бота
 
