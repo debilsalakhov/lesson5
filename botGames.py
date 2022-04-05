@@ -99,7 +99,7 @@ class Game21:
     def get_cards(self, card_count=1):
         if self.pack_card is None:
             return None
-        if self.status is None:  # игра закончена
+        if self.status is not None:  # игра закончена
             return None
 
         deck_id = self.pack_card["deck_id"]
