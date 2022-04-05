@@ -29,11 +29,15 @@ class Menu:
         return id
 
     @classmethod
-    def getMenu(cls, name):
+    def getMenu(cls, chat_id, name):
         menu = cls.hash.get(name)
         if menu is not None:
-            cls.cur_menu = menu
+            cls.cur_menu[chat_id] = menu
         return menu
+
+    @classmethod
+    def getCurMenu(cls, chat_id):
+        return cls.cur_menu.get(chat_id)
 
 
 m_main = Menu('Главное меню', buttons=['Развлечения', 'Игры', 'ДЗ', 'Помощь'])
@@ -42,3 +46,4 @@ m_game_21 = Menu('Игра в 21', buttons=['Карту!', 'Стоп!', 'Вых�
 m_game_rsp = Menu('Камень, ножницы, бумага',  buttons=['Камень', 'Ножницы', 'Бумага', 'Выход'], parent=m_games,
                   action='game_rsp')
 m_entertainment = Menu('Развлечения', buttons=['Прислать собаку', 'Прислать анекдот', 'Прислать фильм', 'Выход'], parent=m_main)
+m_DZ = Menu("ДЗ", buttons=["Задание-1", "Задание-2", "Задание-3", "Задание-4", "Задание-5", "Задание-6", "Выход"], parent=m_main)

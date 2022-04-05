@@ -29,7 +29,7 @@ def dz6(bot, chat_id):
 
 def my_input(bot, chat_id, txt, ResponseHandler):
     message = bot.send_message(chat_id, text=txt)
-    bot.register_next_stephandler(message, ResponseHandler)
+    bot.register_next_step_handler(message, ResponseHandler)
 
 
 def my_inputInt(bot, chat_id, txt, ResponseHandler):

@@ -14,23 +14,21 @@ import DZ
 
 
 bot = telebot.TeleBot('5150353309:AAHW1DPdYWBmnLyYFHFmmFJpZPstV1wuwGo')  # Создаем экземпляр бота @Salakhov_Shamil_1MD25_bot
-game21 = None  # класс игры в 21, экземпляр создаем только при начале игры
 
 
 # -----------------------------------------------------------------------
 # Функция, обрабатывающая команду /start
 @bot.message_handler(commands=["start"])
 def command(message, res=False):
-
+    chat_id = message.chat.id
     txt_message = f"Йоу здорова, {message.from_user.first_name}! Я тестовый бот для курса программирования на языке Питон! Пока еще я ничего не умею, но скоро буду."
-    bot.send_message(message.chat.id, text=txt_message, reply_markup=Menu.getMenu("Главное меню").markup)
+    bot.send_message(message.chat.id, text=txt_message, reply_markup=Menu.getMenu(chat_id, "Главное меню").markup)
 
 
 # -----------------------------------------------------------------------
 # Получение сообщений от юзера
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    global game21
 
     chat_id = message.chat.id
     ms_text = message.text
@@ -38,7 +36,8 @@ def get_text_messages(message):
     if result is True:
         return  # мы вошли в подменю, и дальнейшая обработка не требуется
 
-    if Menu.cur_menu is not None and ms_text in Menu.cur_menu.buttons:  # проверим, что команда относится к текущему меню
+    cur_menu = Menu.getCurMenu(chat_id)
+    if cur_menu is not None and ms_text in cur_menu.buttons:  # проверим, что команда относится к текущему меню
         if ms_text == "Помощь":
             send_help(chat_id)
 
@@ -55,19 +54,22 @@ def get_text_messages(message):
             get_ManOrNot(chat_id)
 
         elif ms_text == "Карту!":
-            if game21 is None:  # если мы случайно попали в это меню, а объекта с игрой нет
+            game21 = botGames.getGame(chat_id)
+            if game21 == None:  # если мы случайно попали в это меню, а объекта с игрой нет
                 goto_menu(chat_id, "Выход")
                 return
+
             text_game = game21.get_cards(1)
             bot.send_media_group(chat_id, media=getMediaCards(game21))  # получим и отправим изображения карт
             bot.send_message(chat_id, text=text_game)
 
-            if game21.status is not None:  # выход, если игра закончена
+            if game21.status != None:  # выход, если игра закончена
+                botGames.stopGame(chat_id)
                 goto_menu(chat_id, "Выход")
                 return
 
         elif ms_text == "Стоп!":
-            game21 = None
+            botGames.stopGame(chat_id)
             goto_menu(chat_id, "Выход")
             return
 
@@ -108,22 +110,33 @@ def callback_worker(call):
 # ----------------------------------------------------------------------------------------------------------------------
 def goto_menu(chat_id, name_menu):
     # получение нужного элемента меню
-    if name_menu == "Выход" and Menu.cur_menu is not None and Menu.cur_menu.parent is not None:
-        target_menu = Menu.getMenu(Menu.cur_menu.parent.name)
+    cur_menu = Menu.getCurMenu(chat_id)
+    if name_menu == "Выход" and cur_menu != None and cur_menu.parent != None:
+        target_menu = Menu.getMenu(chat_id, cur_menu.parent.name)
     else:
-        target_menu = Menu.getMenu(name_menu)
+        target_menu = Menu.getMenu(chat_id, name_menu)
 
-    if target_menu is not None:
+    if target_menu != None:
         bot.send_message(chat_id, text=target_menu.name, reply_markup=target_menu.markup)
 
         # Проверим, нет ли обработчика для самого меню. Если есть - выполним нужные команды
         if target_menu.name == "Игра в 21":
-            global game21
-            game21 = botGames.Game21()  # создаём новый экземпляр игры
+            game21 = botGames.newGame(chat_id, botGames.Game21())  # создаём новый экземпляр игры
             text_game = game21.get_cards(2)  # просим 2 карты в начале игры
             bot.send_media_group(chat_id, media=getMediaCards(game21))  # получим и отправим изображения карт
             bot.send_message(chat_id, text=text_game)
 
+        '''
+        elif target_menu.name == "Камень, ножницы, бумага":
+            gameRSP = botGames.newGame(chat_id, botGames.GameRPS())  # создаём новый экземпляр игры
+            text_game = "<b>Победитель определяется по следующим правилам:</b>\n" \
+                        "1. Камень побеждает ножницы\n" \
+                        "2. Бумага побеждает камень\n" \
+                        "3. Ножницы побеждают бумагу"
+            bot.send_photo(chat_id, photo="https://i.ytimg.com/vi/Gvks8_WLiw0/maxresdefault.jpg", caption=text_game,
+                           parse_mode='HTML')
+
+        '''
         return True
     else:
         return False

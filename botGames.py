@@ -1,5 +1,23 @@
 import requests
 
+# ----------------------------------------------------------------------------------------------------------------------
+# не создаем новый клас, потому что игре уже присвоен класс Game21 или GameRSP. Можно было сделать эти функции
+# методами классов этих игр, но тогда код был бы длиннее и сложнее.
+activeGames = {}  # Тут будем накапливать все активные игры. У пользователя может быть только одна активная игра
+
+
+def newGame(chatID, newGame):
+    activeGames.update({chatID: newGame})
+    return newGame
+
+
+def getGame(chatID):
+    return activeGames.get(chatID)
+
+
+def stopGame(chatID):
+    activeGames.pop(chatID)
+# ----------------------------------------------------------------------------------------------------------------------
 
 class Card:
     emo_SPADES = 'U0002660'
@@ -133,6 +151,22 @@ class Game21:
             text_game = "Очков: " + str(self.score) + " в колоде осталось карт: " + str(self.remaining)
 
         return text_game
+
+
+    '''
+    activeGames = {}
+    
+    def newGame(self, chatID)
+        activeGames.update({chatID: self})
+    
+    
+    def getGame(chatID):
+        return activeGames.get(chatID)
+
+
+    def stopGame(chatID):
+        activeGames.pop(chatID)
+    '''
 
     # -----------------------------------------------------------------------
     if __name__ == "__main__":
