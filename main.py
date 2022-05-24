@@ -3,7 +3,7 @@
 import json
 from gettext import find
 from io import BytesIO
-
+import imgbb
 import telebot
 from telebot import types
 import requests
@@ -14,6 +14,24 @@ import DZ
 
 
 bot = telebot.TeleBot('5150353309:AAHW1DPdYWBmnLyYFHFmmFJpZPstV1wuwGo')  # Создаем экземпляр бота @Salakhov_Shamil_1MD25_bot
+
+# -----------------------------------------------------------------------
+# Получение фото от юзера
+@bot.message_handler(content_types=['photo'])
+def get_messages(message):
+    chat_id = message.chat.id
+    username = message.from_user.first_name + ' ' + message.from_user.last_name
+
+    file_info = bot.get_file(message.photo[-1].file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    file_name = message.photo[0].file_id + '.jpeg'
+
+    src = 'Z:/Алгоритмизация и программирование/1-МД-25/Салахов/lesson5/' + file_name
+    with open(src, 'wb') as new_file:
+        new_file.write(downloaded_file)
+
+    imgbb.photo_to_excel(username, src)
+    bot.reply_to(message, "Спасибо, получил твое ДЗ. К концу недели будет проверено!")
 
 
 # -----------------------------------------------------------------------
@@ -73,23 +91,7 @@ def get_text_messages(message):
             goto_menu(chat_id, "Выход")
             return
 
-        elif ms_text == "Задание-1":
-            DZ.dz1(bot, chat_id)
 
-        elif ms_text == "Задание-2":
-            DZ.dz2(bot, chat_id)
-
-        elif ms_text == "Задание-3":
-            DZ.dz3(bot, chat_id)
-
-        elif ms_text == "Задание-4":
-            DZ.dz4(bot, chat_id)
-
-        elif ms_text == "Задание-5":
-            DZ.dz5(bot, chat_id)
-
-        elif ms_text == "Задание-6":
-            DZ.dz6(bot, chat_id)
 
     else:  # ...........................................................................................................
         bot.send_message(chat_id, text="Мне жаль, я не понимаю вашу команду: " + ms_text)
